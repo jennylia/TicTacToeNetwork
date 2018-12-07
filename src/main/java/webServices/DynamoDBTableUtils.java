@@ -16,26 +16,51 @@ public class DynamoDBTableUtils {
     static AWSAccessKey awsKey = AWSAccessKeyFactory.getFirstKey();
     static String accessKey = awsKey.getAws_access_key_id();
     static String secretKey = awsKey.getAws_secret_access_key();
-    
+
     static BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
     static AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
             .build();
     static DynamoDB dynamoDB = new DynamoDB(client);
-    static String tableName = "ExampleTable";
+
+
+    //Resources
+    private static final String EXAMPLE_TABLE_NAME = "ExampleTable";
+    private static final String GAME_HISTORY_TABLE_NAME = "GameHistory";
 
 
     public static void main(String[] args) {
-        testDataBase();
-    }
-    private static void testDataBase() {
-        Table table = dynamoDB.getTable(tableName);
-
-        createExampleTable();
+//        setupTable(GAME_HISTORY_TABLE_NAME);
+        deleteTestingResources();
     }
 
-    // Note DDB wrapper has better ways to create table
-    private static void createExampleTable() {
+    private static void deleteTestingResources(){
+        deleteTable(EXAMPLE_TABLE_NAME);
+    }
+
+    public static void deleteTable(String table){
+        try {
+            client.deleteTable(table);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void setupTable(String tableName) {
+        try {
+            Table table = dynamoDB.getTable(tableName);
+            String description = table.describe().toString();
+            System.out.println(description);
+        } catch (ResourceNotFoundException e) {
+            System.out.println("Do not have this table yet so let's go create one");
+            createExampleTable(tableName);
+        }
+    }
+
+
+    // Note: DDB wrapper has better ways to create table
+    private static void createExampleTable(String tableName) {
         CreateTableRequest request = new CreateTableRequest()
                 .withAttributeDefinitions(new AttributeDefinition("Name", ScalarAttributeType.S))
                 .withKeySchema(new KeySchemaElement("Name", KeyType.HASH))
@@ -44,8 +69,8 @@ public class DynamoDBTableUtils {
 
         try {
             CreateTableResult result = client.createTable(request);
-            System.out.printf(result.getTableDescription().getTableName());
-        }catch (AmazonServiceException e){
+            System.out.println(result.getTableDescription().getTableName());
+        } catch (AmazonServiceException e) {
             e.printStackTrace();
         }
     }
