@@ -6,10 +6,16 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.*;
 import webServices.key.AWSAccessKey;
 import webServices.key.AWSAccessKeyFactory;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class DynamoDBTableUtils {
 
@@ -30,15 +36,55 @@ public class DynamoDBTableUtils {
 
 
     public static void main(String[] args) {
-//        setupTable(GAME_HISTORY_TABLE_NAME);
-        deleteTestingResources();
+//        recordGameHistory();
+        testRecordGameHistory();
     }
 
-    private static void deleteTestingResources(){
+    private static void testRecordGameHistory(){
+        setupTable(GAME_HISTORY_TABLE_NAME);
+
+        Table table = dynamoDB.getTable(GAME_HISTORY_TABLE_NAME);
+        try{
+            Item item = new Item().withPrimaryKey("Id", "123")
+                    .withString("Player", "Player1")
+                    .withNumber("Turn", 1)
+                    .withNumber("Position", 1)
+                    .withStringSet("Friends", new HashSet<String>(Arrays.asList("Jenny", "mike")))
+                    .withBoolean("Won", false);
+
+            table.putItem(item);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void recordGameHistory() {
+        setupTable(GAME_HISTORY_TABLE_NAME);
+        // Start to persist
+
+
+        Map<String, AttributeValue> item_values =
+                new HashMap<String, AttributeValue>();
+
+        String name = "player 1";
+        item_values.put("Name", new AttributeValue(name));
+        try {
+            client.putItem(GAME_HISTORY_TABLE_NAME, item_values);
+        } catch (ResourceNotFoundException e) {
+            System.err.format("Error: The table \"%s\" can't be found.\n", GAME_HISTORY_TABLE_NAME);
+            System.err.println("Be sure that it exists and that you've typed its name correctly!");
+            System.exit(1);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void deleteTestingResources() {
         deleteTable(EXAMPLE_TABLE_NAME);
     }
 
-    public static void deleteTable(String table){
+    public static void deleteTable(String table) {
         try {
             client.deleteTable(table);
         } catch (AmazonServiceException e) {
@@ -62,8 +108,8 @@ public class DynamoDBTableUtils {
     // Note: DDB wrapper has better ways to create table
     private static void createExampleTable(String tableName) {
         CreateTableRequest request = new CreateTableRequest()
-                .withAttributeDefinitions(new AttributeDefinition("Name", ScalarAttributeType.S))
-                .withKeySchema(new KeySchemaElement("Name", KeyType.HASH))
+                .withAttributeDefinitions(new AttributeDefinition("Id", ScalarAttributeType.S))
+                .withKeySchema(new KeySchemaElement("Id", KeyType.HASH))
                 .withProvisionedThroughput(new ProvisionedThroughput(new Long(10), new Long(10)))
                 .withTableName(tableName);
 
