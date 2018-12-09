@@ -37,6 +37,5 @@ public class BoardUtils {
             System.out.println();
         }
     }
-
 }
 

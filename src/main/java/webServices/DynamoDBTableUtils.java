@@ -58,7 +58,7 @@ public class DynamoDBTableUtils {
         }
     }
 
-    private static void recordGameHistory() {
+    public static void recordGameHistory() {
         setupTable(GAME_HISTORY_TABLE_NAME);
         // Start to persist
 
