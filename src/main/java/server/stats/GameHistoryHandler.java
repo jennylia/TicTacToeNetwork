@@ -34,18 +34,22 @@ public class GameHistoryHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
 
-        // Parse the request parameters
         String reqParams = httpExchange.getRequestURI().getRawQuery();
-        System.out.println("request param: " + reqParams);
-        String decoded = java.net.URLDecoder.decode(reqParams, "UTF-8");
-        System.out.printf("decoded URL: " + decoded);
-
-        Map<String, String> requestParams = parseParams(decoded);
-        String player = requestParams.get(PLAYER_PARAM);
 
         String response = "Game Data Retrieved: \n ";
-        String gameHistory = retrieveGameHistory(player);
-        response += gameHistory;
+        System.out.println("request param: " + reqParams);
+
+        if (reqParams != null){
+            String decoded = java.net.URLDecoder.decode(reqParams, "UTF-8");
+            System.out.printf("decoded URL: " + decoded);
+
+            Map<String, String> requestParams = parseParams(decoded);
+            String player = requestParams.get(PLAYER_PARAM);
+
+            String gameHistory = retrieveGameHistory(player);
+            response += gameHistory;
+        }
+
         httpExchange.sendResponseHeaders(200, response.getBytes().length);
         OutputStream os = httpExchange.getResponseBody();
         os.write(response.getBytes());
