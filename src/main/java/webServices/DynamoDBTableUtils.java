@@ -5,17 +5,16 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.*;
 import webServices.key.AWSAccessKey;
 import webServices.key.AWSAccessKeyFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class DynamoDBTableUtils {
 
@@ -37,14 +36,67 @@ public class DynamoDBTableUtils {
 
     public static void main(String[] args) {
 //        recordGameHistory();
-        testRecordGameHistory();
+//        testRecordGameHistory();
+        testReadTableScan();
+//        testReadTableQuery();
     }
 
-    private static void testRecordGameHistory(){
+    private static void testReadTableQuery() {
+        Table table = dynamoDB.getTable(GAME_HISTORY_TABLE_NAME);
+
+        QuerySpec querySpec = new QuerySpec()
+                .withHashKey(new KeyAttribute("Id", "ff23c988-cf23-4153-b24c-7a31334ea0ac"));
+//              .withKeyConditionExpression("#p = :p")
+//              .withNameMap(new NameMap().with("#p", "Position"))
+//              .withValueMap(new ValueMap().withNumber(":p", 2));
+        try {
+            ItemCollection<QueryOutcome> items = table.query(querySpec);
+            for (Item i : items) {
+                System.out.println(i.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void testReadTableScan() {
+        Table table = dynamoDB.getTable(GAME_HISTORY_TABLE_NAME);
+
+//        ScanSpec scanSpec = new ScanSpec()
+//                .withProjectionExpression("Player,Turn,Won,#p")
+//                .withFilterExpression("#p between :start and :end")
+//                .withValueMap(new ValueMap().withNumber(":start", 2).withNumber(":end", 7))
+//                .withNameMap(new NameMap().with("#p", "Position"));
+        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+        Condition condition = new Condition()
+                .withComparisonOperator(ComparisonOperator.EQ.toString())
+                .withAttributeValueList(new AttributeValue().withS("Player 2"));
+        scanFilter.put("Player", condition);
+        ScanRequest scanRequest = new ScanRequest(GAME_HISTORY_TABLE_NAME).withScanFilter(scanFilter);
+
+        ScanResult scanResult = client.scan(scanRequest);
+
+        try {
+//            System.out.println(scanResult);
+            List<Map<String, AttributeValue>> items = scanResult.getItems();
+            for(int i = 0; i < items.size(); i++) {
+                Set<String> keys = items.get(i).keySet();
+                System.out.println("keySet: " + keys);
+                for (String s: keys){
+                    System.out.println("Val: " + items.get(i).get(s));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void testRecordGameHistory() {
         setupTable(GAME_HISTORY_TABLE_NAME);
 
         Table table = dynamoDB.getTable(GAME_HISTORY_TABLE_NAME);
-        try{
+        try {
             Item item = new Item().withPrimaryKey("Id", "123")
                     .withString("Player", "Player1")
                     .withNumber("Turn", 1)
@@ -53,7 +105,7 @@ public class DynamoDBTableUtils {
                     .withBoolean("Won", false);
 
             table.putItem(item);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
