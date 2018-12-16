@@ -13,6 +13,7 @@ public class StatsServer {
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/getHistory", new GameHistoryHandler());
+        server.createContext("/createChatRoomId", new ChatRoomCreationHandler());
         server.start();
     }
 }

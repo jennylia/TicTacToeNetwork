@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.model.*;
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import webServices.key.AWSAccessKey;
@@ -28,7 +29,7 @@ public class GameHistoryHandler implements HttpHandler {
 
     private static final String PLAYER_PARAM = "Player";
     private static final String[] VALID_PARAM_VALUES = new String[]{PLAYER_PARAM};
-    private static final Set<String> VALID_PARAMS = new HashSet<String>(Arrays.asList(VALID_PARAM_VALUES));
+    private static final Set<String> VALID_PARAMS = new HashSet<>(Arrays.asList(VALID_PARAM_VALUES));
     private static final String GAME_HISTORY_TABLE_NAME = "GameHistory";
 
     @Override
@@ -39,7 +40,7 @@ public class GameHistoryHandler implements HttpHandler {
         String response = "Game Data Retrieved: \n ";
         System.out.println("request param: " + reqParams);
 
-        if (reqParams != null){
+        if (reqParams != null) {
             String decoded = java.net.URLDecoder.decode(reqParams, "UTF-8");
             System.out.printf("decoded URL: " + decoded);
 
@@ -73,7 +74,7 @@ public class GameHistoryHandler implements HttpHandler {
     }
 
     private static String retrieveGameHistory(String player) {
-        HashMap<String, Condition> scanFilter = new HashMap<String, Condition>();
+        Map<String, Condition> scanFilter = new HashMap<>();
         Condition condition = new Condition()
                 .withComparisonOperator(ComparisonOperator.EQ.toString())
                 .withAttributeValueList(new AttributeValue().withS(player));
@@ -90,7 +91,12 @@ public class GameHistoryHandler implements HttpHandler {
                 System.out.println("Val: " + items.get(i).get(s));
             }
         }
-        return scanResult.toString();
+
+        String resultRaw = scanResult.toString();
+        System.out.println("getting Result: \n" + resultRaw);
+        Gson gson = new Gson();
+        String json = gson.toJson(scanResult);
+        return json;
     }
 
 }
