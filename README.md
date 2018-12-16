@@ -7,3 +7,8 @@ https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.
 
 Networking:
 https://www.tutorialspoint.com/java/java_networking.htm
+
+#To send commands
+```
+Jennys-MacBook-Air-2:JavaProj jennylian$ curl -d '{"hello":"world"}'  -X POST http://localhost:9000/createChatRoomId
+```
