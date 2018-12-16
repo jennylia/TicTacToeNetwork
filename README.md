@@ -8,7 +8,13 @@ https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.
 Networking:
 https://www.tutorialspoint.com/java/java_networking.htm
 
-#To send commands
+#To send commands to APIs
+
+##GET
+http://localhost:9000/getHistory?Player=Player%201
+
+##POST
 ```
 Jennys-MacBook-Air-2:JavaProj jennylian$ curl -d '{"hello":"world"}'  -X POST http://localhost:9000/createChatRoomId
 ```
+

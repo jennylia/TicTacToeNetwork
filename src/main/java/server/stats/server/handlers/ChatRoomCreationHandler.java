@@ -1,4 +1,4 @@
-package server.stats;
+package server.stats.server.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

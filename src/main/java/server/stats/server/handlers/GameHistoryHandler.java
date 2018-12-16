@@ -1,4 +1,4 @@
-package server.stats;
+package server.stats.server.handlers;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -9,6 +9,7 @@ import com.amazonaws.services.dynamodbv2.model.*;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import server.stats.server.aws.DynamoDBClient;
 import webServices.key.AWSAccessKey;
 import webServices.key.AWSAccessKeyFactory;
 
@@ -19,14 +20,7 @@ import java.util.*;
 
 public class GameHistoryHandler implements HttpHandler {
 
-    private static final AWSAccessKey awsKey = AWSAccessKeyFactory.getFirstKey();
-    private static final BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsKey.getAws_access_key_id(), awsKey.getAws_secret_access_key());
-    private static final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
-            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-            .build();
-    private static final DynamoDB dynamoDB = new DynamoDB(client);
-
-
+    private static final AmazonDynamoDB client = DynamoDBClient.getClient();
     private static final String PLAYER_PARAM = "Player";
     private static final String[] VALID_PARAM_VALUES = new String[]{PLAYER_PARAM};
     private static final Set<String> VALID_PARAMS = new HashSet<>(Arrays.asList(VALID_PARAM_VALUES));
@@ -34,7 +28,6 @@ public class GameHistoryHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-
         String reqParams = httpExchange.getRequestURI().getRawQuery();
 
         String response = "Game Data Retrieved: \n ";
