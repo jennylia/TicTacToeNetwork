@@ -4,6 +4,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
@@ -35,11 +36,9 @@ public class DynamoDBTableUtils {
 
 
     public static void main(String[] args) {
-//        recordGameHistory();
-//        testRecordGameHistory();
-        testReadTableScan();
-//        testReadTableQuery();
+        System.out.println("hey");
     }
+
 
     private static void testReadTableQuery() {
         Table table = dynamoDB.getTable(GAME_HISTORY_TABLE_NAME);

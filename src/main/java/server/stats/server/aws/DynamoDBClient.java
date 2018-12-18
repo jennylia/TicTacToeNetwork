@@ -4,6 +4,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import webServices.key.AWSAccessKey;
 import webServices.key.AWSAccessKeyFactory;
@@ -17,6 +18,7 @@ public class DynamoDBClient {
             .build();
 
     static DynamoDB dynamoDB = new DynamoDB(client);
+    static DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(client);
 
     public static DynamoDB getDynamoDB() {
         return dynamoDB;
@@ -26,6 +28,7 @@ public class DynamoDBClient {
         return client;
     }
 
-
-
+    public static DynamoDBMapper getDynamoDBMapper() {
+        return dynamoDBMapper;
+    }
 }
